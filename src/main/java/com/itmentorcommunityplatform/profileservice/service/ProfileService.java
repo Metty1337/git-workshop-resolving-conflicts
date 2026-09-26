@@ -9,10 +9,11 @@ import com.itmentorcommunityplatform.profileservice.domain.type.Role;
 import com.itmentorcommunityplatform.profileservice.dto.event.ProjectCreatedEvent;
 import com.itmentorcommunityplatform.profileservice.dto.event.UserAuthenticatedEvent;
 import com.itmentorcommunityplatform.profileservice.dto.event.UserCreatedEvent;
-import com.itmentorcommunityplatform.profileservice.dto.external.UserWithRolesResponseDto;
 import com.itmentorcommunityplatform.profileservice.dto.request.ProfileUpdateRequestDto;
 import com.itmentorcommunityplatform.profileservice.dto.request.ProfileUpsertInternalRequestDto;
+import com.itmentorcommunityplatform.profileservice.dto.external.UserWithRolesResponseDto;
 import com.itmentorcommunityplatform.profileservice.dto.response.*;
+import com.itmentorcommunityplatform.profileservice.exception.ProfileNotFoundException;
 import com.itmentorcommunityplatform.profileservice.mapper.ProfileMapper;
 import com.itmentorcommunityplatform.profileservice.metrics.ProfileMetrics;
 import com.itmentorcommunityplatform.profileservice.repository.AchievementRepository;
@@ -30,6 +31,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.itmentorcommunityplatform.profileservice.service.ProfileHelperService.mergeProfileDetails;
 
 @Slf4j
 @Service
@@ -269,8 +272,7 @@ public class ProfileService {
         return profileRepository.findByTelegramUserId(telegramUserId)
                 .orElseThrow(() -> {
                     log.warn("Profile not found for telegramUserId: {}", telegramUserId);
-                    return new ResponseStatusException(HttpStatus.NOT_FOUND,
-                            "Profile with Telegram-User-Id %s does not exist".formatted(telegramUserId));
+                    return new ProfileNotFoundException("Profile not found");
                 });
     }
 
